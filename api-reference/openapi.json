@@ -1,94 +1,167 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
+    "title": "EduTube API",
+    "description": "REST API for EduTube — learning journeys, chapters, notes, and chatbot.",
     "version": "1.0.0"
   },
   "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
+    { "url": "https://focus-learn-api.vercel.app/api/v1", "description": "Production" },
+    { "url": "http://localhost:5000/api/v1", "description": "Local" }
   ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
+  "security": [{ "bearerAuth": [] }],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+    "/users/register": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Register",
+        "description": "Register a new user. Returns user id.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserRegister" }
             }
           }
-        ],
+        },
         "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
+          "200": { "description": "User created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserCreateResponse" } } } },
+          "400": { "description": "Email already in use" }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Login",
+        "description": "Login with email and password. Returns JWT token.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserLogin" }
             }
           }
+        },
+        "responses": {
+          "200": { "description": "Token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TokenResponse" } } } },
+          "400": { "description": "Invalid credentials" }
         }
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get profile",
+        "description": "Return current user profile. Requires Bearer token."
+      }
+    },
+    "/journeys": {
+      "get": {
+        "tags": ["Journeys"],
+        "summary": "List journeys",
+        "description": "List all journeys for the authenticated user."
       },
       "post": {
-        "description": "Creates a new plant in the store",
+        "tags": ["Journeys"],
+        "summary": "Create journey",
+        "description": "Create a new journey (title, description, is_public)."
+      }
+    },
+    "/journeys/public": {
+      "get": {
+        "tags": ["Journeys"],
+        "summary": "List public journeys",
+        "description": "List all public journeys. Requires auth."
+      }
+    },
+    "/journeys/playlist": {
+      "post": {
+        "tags": ["Journeys"],
+        "summary": "Create from playlist",
+        "description": "Create journey from YouTube playlist ID. Imports videos as chapters."
+      }
+    },
+    "/journeys/{journey_id}": {
+      "get": {
+        "tags": ["Journeys"],
+        "summary": "Get journey",
+        "parameters": [{ "name": "journey_id", "in": "path", "required": true, "schema": { "type": "string" } }]
+      },
+      "put": {
+        "tags": ["Journeys"],
+        "summary": "Update journey"
+      },
+      "delete": {
+        "tags": ["Journeys"],
+        "summary": "Delete journey"
+      }
+    },
+    "/journeys/{journey_id}/fork": {
+      "post": {
+        "tags": ["Journeys"],
+        "summary": "Fork journey",
+        "description": "Copy a public journey to the current user."
+      }
+    },
+    "/journeys/{journey_id}/chapters": {
+      "get": {
+        "tags": ["Chapters"],
+        "summary": "List chapters",
+        "description": "Get all chapters for a journey."
+      },
+      "post": {
+        "tags": ["Chapters"],
+        "summary": "Create chapter",
+        "description": "Add a new chapter (title, description, video_link, chapter_no)."
+      }
+    },
+    "/journeys/chapters/{chapter_id}": {
+      "get": { "tags": ["Chapters"], "summary": "Get chapter" },
+      "put": { "tags": ["Chapters"], "summary": "Update chapter" },
+      "delete": { "tags": ["Chapters"], "summary": "Delete chapter" }
+    },
+    "/journeys/chapters/isComplete/{chapter_id}": {
+      "put": {
+        "tags": ["Chapters"],
+        "summary": "Mark chapter complete",
+        "description": "Set is_completed for a chapter."
+      }
+    },
+    "/journeys/{journey_id}/chapters/{chapter_id}/notes": {
+      "post": {
+        "tags": ["Notes"],
+        "summary": "Create note"
+      }
+    },
+    "/chapters/{chapter_id}/notes": {
+      "get": { "tags": ["Notes"], "summary": "List notes by chapter" }
+    },
+    "/journeys/{journey_id}/notes": {
+      "get": { "tags": ["Notes"], "summary": "List notes by journey" }
+    },
+    "/notes/{note_id}": {
+      "get": { "tags": ["Notes"], "summary": "Get note" },
+      "put": { "tags": ["Notes"], "summary": "Update note" },
+      "delete": { "tags": ["Notes"], "summary": "Delete note" }
+    },
+    "/chatbot/chat": {
+      "post": {
+        "tags": ["Chatbot"],
+        "summary": "Chat",
+        "description": "Send a message to the AI chatbot.",
+        "security": [],
         "requestBody": {
-          "description": "Plant to add to the store",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string" },
+                  "context": { "type": "string" },
+                  "use_knowledge": { "type": "boolean" }
                 }
               }
             }
@@ -96,122 +169,42 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
+    "/chatbot/health": {
+      "get": {
+        "tags": ["Chatbot"],
+        "summary": "Health check",
+        "security": []
       }
     }
   },
   "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
+    },
+    "schemas": {
+      "UserRegister": {
+        "type": "object",
+        "required": ["username", "email", "password"],
+        "properties": {
+          "username": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        }
+      },
+      "UserLogin": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        }
+      },
+      "UserCreateResponse": { "type": "object", "properties": { "id": { "type": "string" } } },
+      "TokenResponse": { "type": "object", "properties": { "token": { "type": "string" } } }
     }
   }
 }

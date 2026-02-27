@@ -1,33 +1,89 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API Introduction"
+description: "EduTube REST API for developers"
+icon: "terminal"
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Overview
 
-## Welcome
+The EduTube API is a REST API that powers the web app. Use it to:
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+- Integrate EduTube into your app
+- Build automation or scripts
+- Build custom clients (mobile, CLI, etc.)
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Base URL
+
+```
+https://your-api-host.com/api/v1
+```
+
+For local development: `http://localhost:5000/api/v1`
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+Most endpoints require a **JWT Bearer token**.
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+### Register
+
+```bash
+POST /api/v1/users/register
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "your-password"
+}
 ```
+
+Response: `{ "id": "..." }`
+
+### Login
+
+```bash
+POST /api/v1/users/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "your-password"
+}
+```
+
+Response: `{ "token": "eyJhbGciOiJIUzI1NiIs..." }`
+
+### Using the token
+
+Include the token in the `Authorization` header:
+
+```
+Authorization: Bearer <your-token>
+```
+
+## Main resources
+
+| Resource | Description |
+|----------|-------------|
+| **Users** | Register, login, profile |
+| **Journeys** | CRUD, playlist import, public list, fork |
+| **Chapters** | CRUD, mark complete |
+| **Notes** | CRUD per chapter/journey |
+| **Chatbot** | Chat, health |
+
+## Architecture
+
+- **Backend**: FastAPI (Python)
+- **Database**: MongoDB
+- **Auth**: JWT (HS256)
+- **Optional**: AWS Bedrock (chatbot), S3 (transcripts)
+
+## Rate limits & errors
+
+- Use standard HTTP status codes (200, 400, 401, 403, 404, 500)
+- Validation errors return 400 with `detail` describing the issue
+- Unauthorized requests return 401
+
+## OpenAPI specification
+
+The full API is documented via OpenAPI. See the **API reference** tab for interactive docs and endpoint details.
