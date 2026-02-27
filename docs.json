@@ -6,10 +6,10 @@
   "theme": "palm",
   "name": "EduTube",
   "description": "Turn YouTube playlists into structured learning journeys. Track progress, take notes, and learn at your own pace.",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#22c55e",
-    "dark": "#15803D"
+    "colors": {
+      "primary": "#000000",
+      "light": "#ffffff", 
+      "dark": "#000000"
   },
   "favicon": {
     "light": "/favicon.svg",
