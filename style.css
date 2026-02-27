@@ -1,5 +1,18 @@
 /* EduTube theme overrides - green accent (#16A34A) */
 
+/* Replace Mint Starter Kit with EduTube in logo/nav area */
+.nav-logo span,
+header [class*="logo"] span,
+[class*="sidebar"] .nav-logo span {
+  font-size: 0;
+}
+.nav-logo span::after,
+header [class*="logo"] span::after {
+  content: "EduTube";
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
 /* Navbar - EduTube green accent */
 #navbar {
   --primary: #16a34a;
